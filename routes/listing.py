@@ -72,3 +72,31 @@ def my_listings():
     cursor.close()
 
     return render_template('my_listings.html', listings=listings)
+
+@listings_bp.route('/edit-listing/<int:listing_id>', methods=['GET', 'POST'], endpoint='edit_listing')
+@login_required
+def edit_listing(listing_id):
+    user_id = session.get('user_id')
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM listings WHERE id = %s AND seller_id = %s", (listing_id, user_id))
+    listing = cursor.fetchone()
+
+    if not listing:
+        flash("Listing not found or you don't have permission to edit it.", "danger")
+        return redirect(url_for('listings.my_listings'))
+
+    if request.method == 'POST':
+        title = request.form['title']
+        price = request.form['price']
+        category = request.form['category']
+        description = request.form['description']
+
+        cursor.execute(
+            "UPDATE listings SET title = %s, price = %s, category = %s, description = %s WHERE id = %s",
+            (title, price, category, description, listing_id)
+        )
+        mysql.connection.commit()
+        flash('Listing updated successfully.', 'success')
+        return redirect(url_for('listings.my_listings'))
+
+    return render_template('edit_listings.html', listing=listing)

@@ -59,9 +59,15 @@ def login():
         user = cursor.fetchone()
 
         if user:
-            user_id, username, stored_password, failed_attempts, lockout_time = user
-
-
+            if len(user) == 5:
+                user_id, username, stored_password, failed_attempts, lockout_time = user
+            elif len(user) == 3:
+                user_id, username, stored_password = user
+                failed_attempts = 0
+                lockout_time = None
+            else:
+                return "Unexpected user data structure."
+        
             if lockout_time and datetime.now() < lockout_time:
                 flash(f'Account locked. Please try again after 5 minutes.')
                 return redirect(url_for('login'))
