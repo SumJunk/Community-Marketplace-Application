@@ -3,7 +3,6 @@ from config import mysql
 
 users_bp = Blueprint('users', __name__, url_prefix='/users')
 
-# Get all users
 @users_bp.route('/', methods=['GET'])
 def get_users():
     try:
@@ -17,8 +16,7 @@ def get_users():
         return jsonify({'users': user_list})
     except Exception as e:
         return jsonify({'error': str(e)})
-
-# Add a new user (POST to  
+ 
 @users_bp.route('/', methods=['POST'])
 def add_user():
     try:
@@ -38,7 +36,6 @@ def add_user():
     except Exception as e:
         return jsonify({'error': str(e)})
 
-# Delete user by ID
 @users_bp.route('/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     try:
