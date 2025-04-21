@@ -1,0 +1,48 @@
+<header>
+    <div class="header-left">
+        <img src="{{ url_for('static', filename='images/logo_white.png') }}" alt="Community Marketplace Logo" class="header-logo"
+        style="align-items: left;">
+        Community Marketplace - Buy, Sell, Trade
+    </div>
+    <div class="header-right">
+        <button onclick="openSettings()" style="align-items: right;">
+            <img src="{{ url_for('static', filename='images/profile_settings.png')}}" alt="Profile Settings Img" class="header-logo">
+        </button>
+        <button class="menu-btn" onclick="openMenu()" style="align-items: right;"> 
+            <div></div>
+            <div></div>
+            <div></div>
+        </button>
+    </div>
+</header>
+
+<div id="sideMenu" class="side-menu">
+    <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+    <a href="{{ url_for('home') }}">Home</a>
+
+    {% if session.get('logged_in') %}
+        <a href="{{ url_for('logout') }}">Logout</a>
+    {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register') }}">Register</a>
+    {% endif %}
+
+    <a href="{{ url_for('listings.my_listings') }}">My Listings</a>
+    <a href="{{ url_for('listings.create_listing_page') }}">Create Listing</a>
+    <a href="{{ url_for('address.address_page') }}">Schedule a Meeting</a>
+    <a href="{{ url_for('my_meetings.my_meetings_page') }}">My Meetings</a>
+</div>
+
+<script>
+    function openSettings() {
+        window.location.href = "{{ url_for('settings.settings_page') }}";
+    }
+
+    function openMenu() {
+        document.getElementById("sideMenu").style.width = "250px";
+    }
+
+    function closeMenu() {
+        document.getElementById("sideMenu").style.width = "0";
+    }
+</script>
