@@ -3,5 +3,5 @@ flask-mysqldb
 flask-cors
 requests
 Flask-Mail
-twilio
 APScheduler
+pytest

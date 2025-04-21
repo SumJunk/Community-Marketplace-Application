@@ -13,8 +13,9 @@
                 <p><strong>Price:</strong> ${{ listing[2] }}</p>
                 <p><strong>Category:</strong> {{ listing[3] }}</p>
                 <p><strong>Description:</strong> {{ listing[4] }}</p>
+
                 {% if listing[5] %}
-                    <img src="{{ url_for('static', filename=listing[5]) }}" alt="Listing Image" style="max-width: 200px;">
+                    <img src="{{ url_for('static', filename=listing[5] | replace('\\', '/') ) }}" alt="Listing Image" style="max-width: 200px;">
                 {% endif %}
 
                 <p>

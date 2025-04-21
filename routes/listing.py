@@ -12,7 +12,6 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-
 def login_required(f):
     def wrap(*args, **kwargs):
         if 'logged_in' not in session:
@@ -21,7 +20,6 @@ def login_required(f):
         return f(*args, **kwargs)
     wrap.__name__ = f.__name__
     return wrap
-
 
 @listings_bp.route('/create-listing', methods=['GET', 'POST'])
 @login_required
@@ -46,7 +44,8 @@ def create_listing_page():
         if image and allowed_file(image.filename):
             filename = secure_filename(image.filename)
             image.save(os.path.join(upload_folder, filename))
-            image_url = os.path.join('uploads', filename)
+            image_url = f'uploads/{filename}'
+            image_url = image_url.replace('\\', '/')  # Normalize for web
 
         cursor = mysql.connection.cursor()
         cursor.execute(
@@ -56,10 +55,12 @@ def create_listing_page():
         mysql.connection.commit()
         cursor.close()
 
-        return jsonify({'message': 'Listing created successfully'}), 201
+        flash('Listing created successfully!', 'success')
+
+        # Redirect to 'My Listings' page
+        return redirect(url_for('listings.my_listings'))
 
     return render_template('create_listing.html')
-
 
 @listings_bp.route('/my-listings', methods=['GET'])
 @login_required

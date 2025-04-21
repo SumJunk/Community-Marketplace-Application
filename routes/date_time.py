@@ -10,7 +10,9 @@ def set_date_time():
     # Get the address from the query parameters
     address = request.args.get('address')
 
-    if request.method == 'POST':
+    if 'edit' in request.form:
+            return redirect(url_for('address.address_page')) # redirect to address
+    elif request.method == 'POST':
         # Handle form submission (date and time)
         date = request.form.get('date')
         time = request.form.get('time')
