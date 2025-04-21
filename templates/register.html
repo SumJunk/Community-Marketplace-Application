@@ -1,12 +1,18 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Create Account</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <h2>Create an Account</h2>
+{% extends "base.html" %}
 
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<h2>Create an Account</h2>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+<body>
     <form action="{{ url_for('register') }}" method="POST">
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" required>
@@ -19,4 +25,27 @@
 
     <p>Already have an account? <a href="{{ url_for('login') }}">Log in here</a>.</p>
 </body>
-</html>
+{% endblock %}
+
+
+
+<h2>Login</h2>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<form method="POST" action="{{ url_for('login') }}">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+
+    <button type="submit">Login</button>
+</form>
+

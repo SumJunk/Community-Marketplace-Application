@@ -10,6 +10,7 @@ from routes.address import address_bp
 from routes.date_time import date_time_bp
 from routes.confirm import confirm_bp
 from routes.my_meetings import meeting_bp
+from routes.listing import listings_bp
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
