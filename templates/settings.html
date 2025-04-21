@@ -3,6 +3,7 @@
 <head>
     <title>Account Settings</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/logo_black.png') }}" type="image/png">
     <script>
         function openSettings() {
             window.location.href = "{{ url_for('settings.settings_page') }}";

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}All Listings{% endblock %}
+
+{% block content %}
+<h2 style="text-align: center; margin-bottom: 30px;">All Listings</h2>
+
+<form method="get" action="{{ url_for('listings.all_listings') }}" style="text-align: center; margin-bottom: 30px;">
+    <select name="category" id="category" style="padding: 8px; margin-right: 10px;">
+        <option value="All" {% if selected_category == 'All' %}selected{% endif %}>All</option>
+        <option value="Furniture" {% if selected_category == 'Furniture' %}selected{% endif %}>Furniture</option>
+        <option value="Electronic" {% if selected_category == 'Electronic' %}selected{% endif %}>Electronic</option>
+        <option value="Other" {% if selected_category == 'Other' %}selected{% endif %}>Other</option>
+    </select>
+
+    <input type="text" name="search" id="search" value="{{ search }}" placeholder="Search..." style="padding: 8px; width: 200px; margin-right: 10px;">
+    <button type="submit" class="styled-button">Filter</button>
+</form>
+
+<div style="display: flex; flex-direction: column; gap: 30px; align-items: center;">
+    {% for listing in listings %}
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 80%; padding: 20px; border-radius: 10px; background-color: #ffffff; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+            <div style="flex: 2;">
+                <h3>{{ listing[1] }}</h3>
+                <p><strong>Price:</strong> ${{ listing[2] }}</p>
+                <p><strong>Category:</strong> {{ listing[3] }}</p>
+                <p><strong>Description:</strong> {{ listing[4] }}</p>
+                <p><strong>Seller:</strong> {{ listing[6] }}</p>
+                {% if listing[7] %}
+                    <p style="color: gray;"><strong>Status:</strong> Purchased</p>
+                {% elif listing[8] == session.get('user_id') %}
+                    <p style="font-style: italic;">This is your listing.</p>
+                {% endif %}
+            </div>
+
+            <div style="flex: 1; text-align: center;">
+                {% if listing[5] %}
+                    <img src="{{ url_for('static', filename=listing[5] | replace('\\', '/') ) }}" alt="Image" style="max-width: 150px; border-radius: 8px;"><br><br>
+                {% endif %}
+
+                {% if not listing[7] %}
+                    {% if listing[8] == session.get('user_id') %}
+                        <form action="{{ url_for('listings.delete_listing', listing_id=listing[0]) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this listing?');">
+                            <button type="submit" class="delete-btn">Delete</button>
+                        </form>
+                    {% else %}
+                        <form action="{{ url_for('listings.purchase_item', listing_id=listing[0]) }}" method="POST">
+                            <button type="submit" class="styled-button">Purchase</button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

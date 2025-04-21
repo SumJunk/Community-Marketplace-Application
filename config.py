@@ -4,3 +4,4 @@ MYSQL_CONFIG = {
     'password': '20020821',
     'database': 'community_marketplace'
 }
+

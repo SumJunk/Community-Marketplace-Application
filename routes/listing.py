@@ -100,16 +100,110 @@ def edit_listing(listing_id):
 
     return render_template('edit_listings.html', listing=listing)
 
-@listings_bp.route('/delete-listing/<int:listing_id>', methods=['POST'])
-def delete_listing(listing_id):
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
+@listings_bp.route('/', methods=['GET'])
+@login_required
+def all_listings():
+    category = request.args.get('category')
+    search = request.args.get('search')
+    
+    query = """
+    SELECT 
+        l.id, l.title, l.price, l.category, l.description, l.image_url,
+        u.username AS seller_name,
+        p.id AS purchase_id,
+        l.seller_id
+    FROM listings l
+    JOIN users u ON l.seller_id = u.id
+    LEFT JOIN purchases p ON p.listing_id = l.id
+    WHERE 1=1
+    """
+    params = []
+
+    if category and category.lower() != 'all':
+        query += " AND l.category = %s"
+        params.append(category)
+
+    if search:
+        query += " AND (l.title LIKE %s OR l.description LIKE %s)"
+        params.extend([f"%{search}%", f"%{search}%"])
 
     cursor = mysql.connection.cursor()
-    cursor.execute("DELETE FROM listings WHERE id = %s AND seller_id = %s", (listing_id, session['user_id']))
-    mysql.connection.commit()
+    cursor.execute(query, params)
+    listings = cursor.fetchall()
     cursor.close()
 
-    flash("Listing deleted successfully.", "success")
-    return redirect(url_for('listings.my_listings'))
+    return render_template('all_listings.html', listings=listings, selected_category=category or 'All', search=search or '')
 
+@listings_bp.route('/purchase/<int:listing_id>', methods=['POST'])
+@login_required
+def purchase_item(listing_id):
+    user_id = session.get('user_id')
+    cursor = mysql.connection.cursor()
+
+    # Get listing and seller ID
+    cursor.execute("SELECT seller_id FROM listings WHERE id = %s", (listing_id,))
+    listing = cursor.fetchone()
+
+    if not listing:
+        flash("Listing not found.", "danger")
+        return redirect(url_for('listings.all_listings'))
+
+    seller_id = listing[0]
+    if seller_id == user_id:
+        flash("You cannot purchase your own listing.", "warning")
+        return redirect(url_for('listings.all_listings'))
+
+    # Check if already purchased
+    cursor.execute("SELECT * FROM purchases WHERE listing_id = %s", (listing_id,))
+    if cursor.fetchone():
+        flash("This item has already been purchased.", "info")
+        cursor.close()
+        return redirect(url_for('listings.all_listings'))
+
+
+    session['listing_id'] = listing_id
+    cursor.close()
+    flash("Purchase initiated. Please enter your address.", "info")
+    return redirect(url_for('address.address_page'))
+
+
+@listings_bp.route('/delete/<int:listing_id>', methods=['POST'])
+@login_required
+def delete_listing(listing_id):
+    user_id = session.get('user_id')
+    conn = mysql.connection
+    cursor = conn.cursor()
+
+    # Fetch the listing to check ownership and image
+    cursor.execute('SELECT seller_id, image_url FROM listings WHERE id = %s', (listing_id,))
+    listing = cursor.fetchone()
+
+    if not listing:
+        flash('Listing not found.', 'error')
+        cursor.close()
+        return redirect(url_for('listings.all_listings'))
+
+    seller_id, image_url = listing
+
+    if seller_id != user_id:
+        flash('You are not authorized to delete this listing.', 'error')
+        cursor.close()
+        return redirect(url_for('listings.all_listings'))
+
+    # Delete listing
+    cursor.execute('DELETE FROM purchases WHERE listing_id = %s', (listing_id,))
+    cursor.execute('DELETE FROM listings WHERE id = %s', (listing_id,))
+    conn.commit()
+    cursor.close()
+
+    # Optional cleanup: remove image file from disk
+    if image_url:
+        image_path = os.path.join(listings_bp.upload_folder, os.path.basename(image_url))
+        try:
+            if os.path.exists(image_path):
+                os.remove(image_path)
+        except Exception as e:
+            print(f"Warning: Could not delete image file. {e}")
+
+    flash('Listing deleted successfully!', 'success')
+    return redirect(url_for('listings.my_listings'))
