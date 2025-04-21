@@ -10,6 +10,7 @@ from routes.address import address_bp
 from routes.date_time import date_time_bp
 from routes.confirm import confirm_bp
 from routes.my_meetings import meeting_bp
+from routes.account import account_bp
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -40,6 +41,7 @@ app.register_blueprint(date_time_bp, url_prefix="/date-time")
 app.register_blueprint(listings_bp, url_prefix='/listings')
 app.register_blueprint(confirm_bp, url_prefix="/confirm")
 app.register_blueprint(meeting_bp, url_prefix="/my_meetings")
+app.register_blueprint(account_bp, url_prefix="/account")
 listings_bp.upload_folder = app.config['UPLOAD_FOLDER']
 
 @app.route('/')

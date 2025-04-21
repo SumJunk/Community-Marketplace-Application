@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from config import mysql
+from flask_mysqldb import MySQL
 
 account_bp = Blueprint('account', __name__)
 

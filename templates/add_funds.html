@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Funds - Community Marketplace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <img src="{{ url_for('static', filename='images/logo_white.png') }}" alt="Community Marketplace Logo" class="header-logo">
+        Community Marketplace - Buy, Sell, Trade
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h1>Add Funds</h1>
+        <form id="add-funds-form" action="{{ url_for('account.add_funds') }}" method="post">
+            <input type="number" name="amount" placeholder="Enter amount" required min="1" class="styled-input"><br>
+            <button type="submit" onclick="submitAddFunds(event)">Add Funds</button>
+        </form>
+    </div>
+
+    <script>
+        function submitAddFunds(event) {
+            event.preventDefault();
+            const form = event.target.form;
+            const action = form.action;
+            const formData = new FormData(form);
+
+            fetch(action, {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message || "Funds added successfully.");
+                window.location.reload();  // Optionally reload or redirect
+            })
+            .catch(err => console.error("Failed to add funds:", err));
+        }
+    </script>
+</body>
+</html>
