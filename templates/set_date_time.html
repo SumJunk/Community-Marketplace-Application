@@ -3,55 +3,30 @@
 <head>
     <title>Schedule a Meeting</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/logo_black.png') }}" type="image/png">
 </head>
-<body>
-    <!-- Header -->
-    <header>
-        <img src="{{ url_for('static', filename='images/logo_white.png') }}" alt="Community Marketplace Logo" class="header-logo">
-        Community Marketplace - Buy, Sell, Trade
-        <!-- Hamburger Menu Button -->
-        <button class="menu-btn" onclick="openMenu()">
-            <div></div>
-            <div></div>
-            <div></div>
-        </button>
-    </header>
+<body style="background-image: url('/static/images/building.jpg');background-size: cover; background-position: center; 
+background-repeat: no-repeat; height: 100vh; backdrop-filter: blur(5px);">
 
-    <!-- Sidebar Menu -->
-    <div id="sideMenu" class="side-menu">
-        <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
-        <a href="{{ url_for('home') }}">Home</a>
-        <a href="{{ url_for('login') }}">Login</a>
-        <a href="{{ url_for('register') }}">Register</a>
-        <a href="{{ url_for('listings.my_listings') }}">My Listings</a>
-        <a href="{{ url_for('address.address_page') }}">Schedule a Meeting</a>
-        <a href="{{ url_for('my_meetings.my_meetings_page') }}">My Meetings</a>
-    </div>
+    {% include "header_with_menu.html" %}
 
-
-    <div class="container">
-        <form method="POST" >
+    <div class="container" style="height: 525px; padding-top: 200px; background-color: rgba(255, 255, 255, 0.85);">
+        <form method="POST">
             <h2>Location: {{ address }}</h2>
+            <button type="submit" id="edit" name="edit" value="Edit">Change Address</button>
+            <br><br>
+
             <label for="date">Select Date:</label>
-            <input type="date" id="date" name="date" value="{{ date or ''}}" required>
+            <input type="date" id="date" name="date" value="{{ date or ''}}" style="width: 200px; font-size: 14px; padding: 5px">
             <br><br>
 
             <label for="time">Select Time:</label>
-            <input type="time" id="time" name="time" value="{{ time or ''}}" required>
+            <input type="time" id="time" name="time" value="{{ time or ''}}" style="width: 200px; font-size: 14px; padding: 5px">
             <br><br>
+
             <button type="submit">Submit</button>
         </form>
     </div>
-
-    <script>
-        function openMenu() {
-            document.getElementById("sideMenu").style.width = "250px";
-        }
-
-        function closeMenu() {
-            document.getElementById("sideMenu").style.width = "0";
-        }
-    </script>
 
 </body>
 </html>

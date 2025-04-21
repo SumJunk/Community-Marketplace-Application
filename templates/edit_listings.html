@@ -3,23 +3,40 @@
 {% block title %}Edit Listing{% endblock %}
 
 {% block content %}
-<h1>Edit Your Listing</h1>
+<div class="container" style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; margin-top: 50px;">
+    <h2 style="text-align: center; margin-bottom: 30px;">Edit Your Listing</h2>
 
-<form method="POST">
-    <label for="title">Title:</label><br>
-    <input type="text" name="title" value="{{ listing[1] }}" required><br><br>
+    <form method="POST" style="display: flex; flex-direction: column; gap: 20px;">
+        <div>
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required value="{{ listing[2] }}" class="styled-input">
+        </div>
 
-    <label for="price">Price:</label><br>
-    <input type="number" step="0.01" name="price" value="{{ listing[2] }}" required><br><br>
+        <div>
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" required value="{{ listing[3] }}" class="styled-input">
+        </div>
 
-    <label for="category">Category:</label><br>
-    <input type="text" name="category" value="{{ listing[3] }}" required><br><br>
+        <div>
+            <label for="category">Category:</label>
+            <input type="text" id="category" name="category" required value="{{ listing[4] }}" class="styled-input">
+        </div>
 
-    <label for="description">Description:</label><br>
-    <textarea name="description" required>{{ listing[4] }}</textarea><br><br>
+        <div>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="4" required class="styled-input">{{ listing[5] }}</textarea>
+        </div>
 
-    <button type="submit">Save Changes</button>
-</form>
+        <div style="display: flex; justify-content: center; gap: 15px;">
+            <button type="submit" class="styled-button">Save Changes</button>
+            <form method="POST" action="{{ url_for('listings.delete_listing', listing_id=listing[0]) }}" onsubmit="return confirm('Are you sure you want to delete this listing?');">
+                <button type="submit" class="styled-button danger">Delete Listing</button>
+            </form>
+        </div>
+    </form>
 
-<p><a href="{{ url_for('listings.my_listings') }}">← Back to My Listings</a></p>
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="{{ url_for('listings.my_listings') }}">← Back to My Listings</a>
+    </div>
+</div>
 {% endblock %}

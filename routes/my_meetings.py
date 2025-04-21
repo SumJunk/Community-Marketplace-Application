@@ -19,7 +19,7 @@ def login_required(f):
 @login_required
 def my_meetings_page():
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT id, address, date, time FROM meetings")  # include `id` if needed
+    cursor.execute("SELECT id, address, date, time FROM meetings") 
     meetings = cursor.fetchall()
     cursor.close()
 
@@ -28,7 +28,6 @@ def my_meetings_page():
     return render_template("my_meetings.html", meetings=meeting_list)
     
 # Edit meeting
-# TODO: Need to somehow redirect to search addresses
 @meeting_bp.route('/<int:meeting_id>', methods=['PUT'])
 def update_meeting(meeting_id):
     try:
