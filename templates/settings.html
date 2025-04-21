@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Account Settings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+        function openSettings() {
+            window.location.href = "{{ url_for('settings.settings_page') }}";
+        }
+    
+        function openMenu() {
+            document.getElementById("sideMenu").style.width = "250px";
+        }
+    
+        function closeMenu() {
+            document.getElementById("sideMenu").style.width = "0";
+        }
+    
+        function openAccountInfo() {
+            if(document.getElementById("orderHistory").classList.toggle("show")) {
+                document.getElementById("orderHistory").classList.toggle("show");
+            }
+            if(document.getElementById("editAccount").classList.toggle("show")) {
+                document.getElementById("editAccount").classList.toggle("show");
+            }
+            if(document.getElementById("deleteAccount").classList.toggle("show")) {
+                document.getElementById("deleteAccount").classList.toggle("show");
+            }
+
+            document.getElementById("accountInfo").classList.toggle("show");
+        }
+    
+        function openEditor() {
+            document.getElementById("accountInfo").classList.toggle("show");
+            document.getElementById("editAccount").classList.toggle("show");
+        }
+
+        function closeEditor() {
+            document.getElementById("editAccount").classList.toggle("show");
+        }
+    
+        function openOrderHistory() {
+            if(document.getElementById("accountInfo").classList.toggle("show")) {
+                document.getElementById("accountInfo").classList.toggle("show");
+            }
+            if(document.getElementById("editAccount").classList.toggle("show")) {
+                document.getElementById("editAccount").classList.toggle("show");
+            }
+            if(document.getElementById("deleteAccount").classList.toggle("show")) {
+                document.getElementById("deleteAccount").classList.toggle("show");
+            }
+
+            document.getElementById("orderHistory").classList.toggle("show");
+        }
+    
+        function openDeleteAccount() {
+            if(document.getElementById("orderHistory").classList.toggle("show")) {
+                document.getElementById("orderHistory").classList.toggle("show");
+            }
+            if(document.getElementById("editAccount").classList.toggle("show")) {
+                document.getElementById("editAccount").classList.toggle("show");
+            }
+            if(document.getElementById("accountInfo").classList.toggle("show")) {
+                document.getElementById("accountInfo").classList.toggle("show");
+            }
+
+            document.getElementById("deleteAccount").classList.toggle("show");
+        }
+    
+        async function submitUpdate(event) {
+            event.preventDefault();
+    
+            const form = document.getElementById("edit-account-form");
+            const formData = new FormData(form);
+    
+            try {
+                const response = await fetch("{{ url_for('settings.edit_account') }}", {
+                    method: 'PUT',
+                    body: formData
+                });
+            } catch (error) {
+                console.error("Update error:", error);
+            }
+        }
+    
+        async function submitDelete(event) {
+            event.preventDefault();
+    
+            if (!confirm("Are you sure you want to delete your account? This cannot be undone.")) return;
+    
+            try {
+                const response = await fetch("{{ url_for('settings.delete_account') }}", {
+                    method: 'DELETE'
+                });
+    
+                const result = await response.json();
+                alert(result.message || result.error || "Account deleted.");
+    
+                if (result.message) {
+                    window.location.href = "{{ url_for('login') }}"; // or /logout if you have it
+                }
+            } catch (error) {
+                console.error("Delete error:", error);
+            }
+        }
+    </script>    
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-left">
+            <img src="{{ url_for('static', filename='images/logo_white.png') }}" alt="Community Marketplace Logo" class="header-logo"
+            style="align-items: left;">
+            Community Marketplace - Buy, Sell, Trade
+        </div>
+        <div class="header-right">
+            <!-- Settings Button -->
+            <button onclick="openSettings()" style="align-items: right;">
+                <img src="{{ url_for('static', filename='images/profile_settings.png')}}" alt="Profile Settings Img" class="header-logo">
+            </button>
+            <!-- Hamburger Menu Button -->
+            <button class="menu-btn" onclick="openMenu()" style="align-items: right;"> 
+                <div></div>
+                <div></div>
+                <div></div>
+            </button>
+        </div>
+    </header>
+
+    <div id="sideMenu" class="side-menu">
+        <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register') }}">Register</a>
+        <a href="{{ url_for('listings.my_listings') }}">My Listings</a>
+        <a href="{{ url_for('address.address_page') }}">Schedule a Meeting</a>
+        <a href="{{ url_for('my_meetings.my_meetings_page') }}">My Meetings</a>
+    </div>
+
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+    </div>  
+    
+    <div class="account-wrapper">
+        <div class="container" style="width: 40%; display: flex; flex-direction: column; text-align: center;">
+            <button id="buttonAccount" onclick="openAccountInfo()">Account Info</button><br>
+            <button id="buttonHistory" onclick="openOrderHistory()">Order History</button><br>
+            <button id="buttonDelete" onclick="openDeleteAccount()">Delete Account</button><br>
+        </div>
+    
+        <div id="accountInfo" class="open-container">
+            <form method="POST" action="{{ url_for('settings.settings_page') }}">
+                <h2><b>Account Information</b></h2>
+                <br><br>
+                <p>Username: {{ username }}</p>
+                <p>Password: {{ password }}</p>
+                <p>Email: {{ email }}</p> 
+                <br><br>
+                <button onclick="openEditor(); submitUpdate(event)">Edit Account</button>
+            </form>
+        </div>
+        
+        <div id="editAccount" class="open-container">
+            <form id="edit-account-form" onsubmit="submitUpdate(event)">
+                <h2><b>Edit Account</b></h2>
+                <br><br>
+                <input type="text" name="username" class="styled-input"
+                    placeholder="New Username" value="{{ username }}" style="width: 200px; font-size: 14px; padding: 5px" required><br>
+                <input type="password" name="password" class="styled-input"
+                    placeholder="New Password (optional)" style="width: 200px; font-size: 14px; padding: 5px"><br>
+                <input type="email" name="email" class="styled-input"
+                    placeholder="New Email" value="{{ email }}" style="width: 200px; font-size: 14px; padding: 5px" required><br>
+                <br><br>
+                <button type="submit" onclick="openAccountInfo(); closeEditor()">Confirm Changes</button>
+            </form>
+        </div>
+
+        <div id="orderHistory" class="open-container">
+            <form method="POST" action="{{ url_for('settings.order_history') }}">
+                {% if prior_meetings %}
+                    <table border="1" style="margin-top: 20px; width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>Address</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for meeting in prior_meetings %}
+                                <tr>
+                                    <td>{{ meeting.address }}</td>
+                                    <td>{{ meeting.date }}</td>
+                                    <td>{{ meeting.time }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No orders.</p>
+                {% endif %}
+            </form>
+        </div>
+
+        <div id="deleteAccount" class="open-container">
+            <form onsubmit="submitDelete(event)">
+                <h2><b>Delete Account</b></h2>
+                <p>Are you sure? This cannot be undone.</p>
+                <button type="submit" style="color: red;">Delete Account</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

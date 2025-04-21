@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from flask import Flask, render_template, redirect, url_for, request, session, flash
 from flask_mysqldb import MySQL
-from flask_mail import Mail, Message
+from flask_mail import Mail
 from routes.listing import listings_bp
 import os
 import config
@@ -10,6 +10,7 @@ from routes.address import address_bp
 from routes.date_time import date_time_bp
 from routes.confirm import confirm_bp
 from routes.my_meetings import meeting_bp
+from routes.settings import settings_bp
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -40,6 +41,7 @@ app.register_blueprint(date_time_bp, url_prefix="/date-time")
 app.register_blueprint(listings_bp, url_prefix='/listings')
 app.register_blueprint(confirm_bp, url_prefix="/confirm")
 app.register_blueprint(meeting_bp, url_prefix="/my_meetings")
+app.register_blueprint(settings_bp, url_prefix="/settings")
 listings_bp.upload_folder = app.config['UPLOAD_FOLDER']
 
 @app.route('/')
@@ -59,10 +61,10 @@ def login():
         user = cursor.fetchone()
 
         if user:
-            if len(user) == 5:
-                user_id, username, stored_password, failed_attempts, lockout_time = user
-            elif len(user) == 3:
-                user_id, username, stored_password = user
+            if len(user) == 6:
+                user_id, username, stored_password, failed_attempts, lockout_time, email = user
+            elif len(user) == 4:
+                user_id, username, stored_password, email = user
                 failed_attempts = 0
                 lockout_time = None
             else:
@@ -86,6 +88,7 @@ def login():
                 session['logged_in'] = True
                 session['user_id'] = user[0]
                 session['username'] = username
+                session['email'] = email
                 flash('Login successful!')
                 return redirect(url_for('home'))
             else:
@@ -116,6 +119,7 @@ def login():
 def logout():
     session.pop('logged_in', None)
     session.pop('username', None)
+    session.pop('email', None)
     flash('You have been logged out.')
     return redirect(url_for('home'))
 
@@ -125,6 +129,7 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        email = request.form['email']
 
         cursor = mysql.connection.cursor()
 
@@ -136,8 +141,8 @@ def register():
             return redirect(url_for('register'))
 
         cursor.execute(
-            "INSERT INTO users (username, password, failed_attempts, lockout_time) VALUES (%s, %s, 0, NULL)",
-            (username, password)
+            "INSERT INTO users (username, password, email, failed_attempts, lockout_time) VALUES (%s, %s, %s, 0, NULL)",
+            (username, password, email)
         )
         mysql.connection.commit()
         cursor.close()

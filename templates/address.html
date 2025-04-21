@@ -4,17 +4,28 @@
     <title>Schedule a Meeting</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-<body>
+<body style="background-image: url('/static/images/tables.jpg');background-size: cover; background-position: center; 
+background-repeat: no-repeat; height: 100vh; backdrop-filter: blur(5px);">
+
     <!-- Header -->
     <header>
-        <img src="{{ url_for('static', filename='images/logo_white.png') }}" alt="Community Marketplace Logo" class="header-logo">
-        Community Marketplace - Buy, Sell, Trade
-        <!-- Hamburger Menu Button -->
-        <button class="menu-btn" onclick="openMenu()">
-            <div></div>
-            <div></div>
-            <div></div>
-        </button>
+        <div class="header-left">
+            <img src="{{ url_for('static', filename='images/logo_white.png') }}" alt="Community Marketplace Logo" class="header-logo"
+            style="align-items: left;">
+            Community Marketplace - Buy, Sell, Trade
+        </div>
+        <div class="header-right">
+            <!-- Settings Button -->
+            <button onclick="openSettings()" style="align-items: right;">
+                <img src="{{ url_for('static', filename='images/profile_settings.png')}}" alt="Profile Settings Img" class="header-logo">
+            </button>
+            <!-- Hamburger Menu Button -->
+            <button class="menu-btn" onclick="openMenu()" style="align-items: right;"> 
+                <div></div>
+                <div></div>
+                <div></div>
+            </button>
+        </div>
     </header>
 
     <!-- Sidebar Menu -->
@@ -30,11 +41,10 @@
 
 
     <!-- Main Content -->
-    <div class="container">
+    <div class="container" style="height: 525px; padding-top: 200px; background-color: rgba(255, 255, 255, 0.85); display: flex; flex-direction: column; align-items: center;">
         <h1>Search for an Address</h1>
         <form action="{{ url_for('address.address_page') }}" method="GET">
             <input type="text" id="addressInput" name="query" class="styled-input" placeholder="Start typing an address..." style="width: 600px;">
-            <button type="submit">Search</button>
         </form>
         <div id="suggestions" style="width: 600px;"></div> 
     </div>
