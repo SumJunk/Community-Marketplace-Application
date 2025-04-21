@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, session, flash
 from flask_mysqldb import MySQL
 from notifications.scheduler import schedule_email
-from notifications.email import send_email_reminder
 from datetime import datetime
 
 # Create a Blueprint for the date-time routes
@@ -14,7 +13,7 @@ def confirm_meeting():
     address = session.get('address')
     date = session.get('date')
     time = session.get('time')
-    email = session.get('email') # Make sure this is being set earlier
+    email = session.get('email')
 
     if request.method == 'POST':
         if 'confirm' in request.form:
@@ -32,14 +31,7 @@ def confirm_meeting():
 
             # Schedule reminder emails
             if email:
-                schedule_email(meeting_datetime, email, address)
-
-                # Send immediate confirmation email
-                send_email_reminder(
-                    email,
-                    "Meeting Confirmed",
-                    f"Your meeting is confirmed for {date} at {time} at {address}."
-                )
+                schedule_email(meeting_datetime, email, address, immediate=True)
 
             flash(f'Meeting Scheduled:{time} {date} at {address}', 'success')
             return redirect(url_for('home'))

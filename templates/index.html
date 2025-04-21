@@ -9,14 +9,23 @@ background-repeat: no-repeat; height: 100vh; backdrop-filter: blur(5px);">
 
     <!-- Header -->
     <header>
-        <img src="{{ url_for('static', filename='images/logo_white.png') }}" alt="Community Marketplace Logo" class="header-logo">
-        Community Marketplace - Buy, Sell, Trade
-        <!-- Hamburger Menu Button -->
-        <button class="menu-btn" onclick="openMenu()">
-            <div></div>
-            <div></div>
-            <div></div>
-        </button>
+        <div class="header-left">
+            <img src="{{ url_for('static', filename='images/logo_white.png') }}" alt="Community Marketplace Logo" class="header-logo"
+            style="align-items: left;">
+            Community Marketplace - Buy, Sell, Trade
+        </div>
+        <div class="header-right">
+            <!-- Settings Button -->
+            <button onclick="openSettings()" style="align-items: right;">
+                <img src="{{ url_for('static', filename='images/profile_settings.png')}}" alt="Profile Settings Img" class="header-logo">
+            </button>
+            <!-- Hamburger Menu Button -->
+            <button class="menu-btn" onclick="openMenu()" style="align-items: right;"> 
+                <div></div>
+                <div></div>
+                <div></div>
+            </button>
+        </div>
     </header>
 
     <!-- Sidebar Menu -->
@@ -57,6 +66,9 @@ background-repeat: no-repeat; height: 100vh; backdrop-filter: blur(5px);">
     </div>    
 
     <script>
+        function openSettings() {
+            window.location.href = "{{ url_for('settings.settings_page') }}";
+        }
         function openMenu() {
             document.getElementById("sideMenu").style.width = "250px";
         }
