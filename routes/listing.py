@@ -55,7 +55,8 @@ def create_listing_page():
         mysql.connection.commit()
         cursor.close()
 
-        return jsonify({'message': 'Listing created successfully'}), 201
+        flash('Listing created successfully!', 'success')
+        return redirect(url_for('listings.create_listing_page'))
 
     return render_template('create_listing.html')
 
@@ -98,3 +99,17 @@ def edit_listing(listing_id):
         return redirect(url_for('listings.my_listings'))
 
     return render_template('edit_listings.html', listing=listing)
+
+@listings_bp.route('/delete-listing/<int:listing_id>', methods=['POST'])
+def delete_listing(listing_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("DELETE FROM listings WHERE id = %s AND seller_id = %s", (listing_id, session['user_id']))
+    mysql.connection.commit()
+    cursor.close()
+
+    flash("Listing deleted successfully.", "success")
+    return redirect(url_for('listings.my_listings'))
+
