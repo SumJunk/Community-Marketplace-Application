@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, session, flash
 from flask_mysqldb import MySQL
-from notifications.scheduler import schedule_email
+from notifications.email_scheduler import schedule_email
+from flask import current_app
 from datetime import datetime
 
 confirm_bp = Blueprint('confirm', __name__, template_folder="../templates")
@@ -38,7 +39,7 @@ def confirm_meeting():
 
             # Optional email notification
             if email:
-                schedule_email(meeting_datetime, email, address)
+                schedule_email(current_app._get_current_object(), meeting_datetime, email, address, immediate=True)
 
             flash(f'Meeting Scheduled: {time} {date} at {address}', 'success')
             return redirect(url_for('home'))

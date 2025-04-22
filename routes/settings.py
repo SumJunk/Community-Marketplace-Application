@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, session, flash
 from flask_mysqldb import MySQL
-from notifications.scheduler import schedule_email
 from datetime import datetime
 
 # Create a Blueprint for the date-time routes
@@ -27,9 +26,40 @@ def settings_page():
     result = cursor.fetchone()
     cursor.close()
 
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT id, address, date, TIME_FORMAT(time, '%H:%i') as time FROM prior_meetings")
+    cursor.execute("SELECT listing_id, purchase_date, status FROM purchases")
+    meetings = cursor.fetchall()
+
+    prior_meetings = []
+    purchases = []
+
+    for m in meetings:
+        meeting_id, address, date_str, time_str = m
+        meeting_datetime = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
+        formatted_time = meeting_datetime.strftime("%I:%M %p")
+
+        prior_meetings.append({
+            'id': meeting_id,
+            'address': address,
+            'date': date_str,
+            'time': formatted_time
+        })
+
+    for p in purchases:
+        listing_id, purchase_date, status = p
+
+        purchases.append({
+            'listing_id': listing_id,
+            'purchase_date': purchase_date,
+            'status': status
+        })
+
+    cursor.close()
+
     if result:
         username, email = result
-        return render_template('settings.html', username=username, email=email)
+        return render_template('settings.html', username=username, email=email, prior_meetings=prior_meetings, purchases=purchases)
     else:
         flash("User not found", "danger")
         return redirect(url_for('login'))
@@ -40,7 +70,7 @@ def edit_account():
     try:
         user_id = session.get('user_id')
         username = request.form.get('username')
-        password = request.form.get('password')  # If storing password, hash it!
+        password = request.form.get('password')
         email = request.form.get('email')
 
         cursor = mysql.connection.cursor()
@@ -69,16 +99,3 @@ def delete_account():
     except Exception as e:
         print("Error during delete:", e)
         return jsonify({'error': str(e)})
-
-# If meeting time has passed, then it gets added to order history
-@settings_bp.route('/order_history', methods=['GET'])
-def order_history():
-    cursor = mysql.connection.cursor()
-    cursor.execute("SELECT id, address, date, time FROM prior_meetings") 
-    meetings = cursor.fetchall()
-    cursor.close()
-
-    # Convert to list of dicts
-    meeting_list = [{'id': m[0], 'address': m[1], 'date': m[2], 'time': m[3]} for m in meetings]
-    return render_template("my_meetings.html", meetings=meeting_list)
-

@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, session, flash
 from flask_mysqldb import MySQL
+from datetime import datetime
 
 # Create a Blueprint for the date-time routes
 meeting_bp = Blueprint('my_meetings', __name__, template_folder="../templates")
@@ -19,13 +20,36 @@ def login_required(f):
 @login_required
 def my_meetings_page():
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT id, address, date, time FROM meetings") 
+    cursor.execute("SELECT id, address, date, TIME_FORMAT(time, '%H:%i') as time FROM meetings")
     meetings = cursor.fetchall()
+
+    now = datetime.now()
+    upcoming_meetings = []
+
+    for m in meetings:
+        meeting_id, address, date_str, time_str = m
+        meeting_datetime = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
+        formatted_time = meeting_datetime.strftime("%I:%M %p")
+
+        if meeting_datetime < now:
+            cursor.execute(
+                "INSERT INTO prior_meetings (id, address, date, time) VALUES (%s, %s, %s, %s)",
+                (meeting_id, address, date_str, time_str)
+            )
+
+            cursor.execute("DELETE FROM meetings WHERE id = %s", (meeting_id,))
+        else:
+            upcoming_meetings.append({
+                'id': meeting_id,
+                'address': address,
+                'date': date_str,
+                'time': formatted_time
+            })
+
+    mysql.connection.commit()
     cursor.close()
 
-    # Convert to list of dicts
-    meeting_list = [{'id': m[0], 'address': m[1], 'date': m[2], 'time': m[3]} for m in meetings]
-    return render_template("my_meetings.html", meetings=meeting_list)
+    return render_template("my_meetings.html", meetings=upcoming_meetings)
     
 # Edit meeting
 @meeting_bp.route('/<int:meeting_id>', methods=['PUT'])

@@ -17,6 +17,10 @@ def set_date_time():
         date = request.form.get('date')
         time = request.form.get('time')
 
+        if not date or not time:
+            flash("Please provide both a date and time.", "warning")
+            return render_template('set_date_time.html', address=address, date=date, time=time)
+
         session['address'] = address
         session['date'] = date
         session['time'] = time

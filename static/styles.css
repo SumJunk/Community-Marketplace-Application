@@ -214,3 +214,7 @@ button:hover {
 .delete-btn:hover {
     background-color: #c0392b;
 }
+.alert-warning {
+    background-color: #ebacac;
+    color: #8f2121;
+}

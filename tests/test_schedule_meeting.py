@@ -11,10 +11,6 @@ def client():
             sess['logged_in'] = True
         yield client
         
-    from flask import g
-    if hasattr(g, 'mysql_db'):
-        g.mysql_db.close()
-
 def test_schedule_flow(client):
     response = client.get('/address/search_address', query_string={'query': '9201 University City Blvd'}, follow_redirects=True)
     assert response.status_code == 200

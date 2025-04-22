@@ -5,17 +5,15 @@ from flask_mail import Mail
 from routes.listing import listings_bp
 import os
 import config
+from notifications.extensions import mail
 
 from routes.address import address_bp
 from routes.date_time import date_time_bp
 from routes.confirm import confirm_bp
 from routes.my_meetings import meeting_bp
-<<<<<<< HEAD
 from routes.account import account_bp
-=======
 from routes.listing import listings_bp
 from routes.settings import settings_bp
->>>>>>> 2cecb23804793a621895259992577f36b159b3d9
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -33,10 +31,11 @@ mysql = MySQL(app)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'your_email@gmail.com'
-app.config['MAIL_PASSWORD'] = 'your_app_password'
+app.config['MAIL_DEFAULT_SENDER'] = 'cmcompanytester@gmail.com'
+app.config['MAIL_USERNAME'] = 'cmcompanytester@gmail.com'
+app.config['MAIL_PASSWORD'] = 'xpblfgxiwmdxhpti'
 
-mail = Mail(app)
+mail.init_app(app)
 
 MAX_ATTEMPTS = 5
 LOCKOUT_TIME_MINUTES = 5
@@ -46,11 +45,8 @@ app.register_blueprint(date_time_bp, url_prefix="/date-time")
 app.register_blueprint(listings_bp, url_prefix='/listings')
 app.register_blueprint(confirm_bp, url_prefix="/confirm")
 app.register_blueprint(meeting_bp, url_prefix="/my_meetings")
-<<<<<<< HEAD
 app.register_blueprint(account_bp, url_prefix="/account")
-=======
 app.register_blueprint(settings_bp, url_prefix="/settings")
->>>>>>> 2cecb23804793a621895259992577f36b159b3d9
 listings_bp.upload_folder = app.config['UPLOAD_FOLDER']
 
 @app.route('/')

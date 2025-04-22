@@ -33,6 +33,7 @@ background-repeat: no-repeat; height: 100vh; backdrop-filter: blur(5px);">
                                 <form id="update-form" action="{{ url_for('my_meetings.update_meeting', meeting_id=meeting.id) }}" method="POST">
                                     <input type="text" id="addressInput" name="query" class="styled-input" 
                                     placeholder="Start typing an address..." style="width: 200px; font-size: 14px; padding: 5px"><br>
+                                    <div id="suggestions" style="width: 600px;"></div>
                                     <input type="date" id="date" name="date" value="{{ date or ''}}" required 
                                     style="width: 200px; font-size: 14px; padding: 5px"><br>
                                     <input type="time" id="time" name="time" value="{{ time or ''}}" required 
@@ -45,7 +46,7 @@ background-repeat: no-repeat; height: 100vh; backdrop-filter: blur(5px);">
                                     <button type="submit" onclick="submitDelete(event)">Cancel Meeting</button>
                                 </form>
                             </td>
-                            <div id="suggestions" style="width: 600px;"></div>
+                            <!-- <div id="suggestions" style="width: 600px;"></div> -->
                         </tr>
                     {% endfor %}
                 </tbody>

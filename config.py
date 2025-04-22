@@ -2,13 +2,7 @@
 MYSQL_CONFIG = {
     'host': 'localhost',
     'user': 'root',
-<<<<<<< HEAD
-    'password': 'Shriram123*',
-    'database': 'community_marketplace'
-
-}
-=======
-    'password': '20020821',
+    'password': '7cb*03Ag',
     'database': 'community_marketplace'
 }
 
