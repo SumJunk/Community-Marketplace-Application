@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Responses Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background-color: #f2f2f2;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .response-box {
+            background: white;
+            padding: 20px;
+            margin: 15px auto;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            width: 80%;
+        }
+        .response-header {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        form {
+            margin: 30px auto;
+            padding: 20px;
+            width: 80%;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        button {
+            padding: 10px 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>All Review Responses</h1>
+
+    {% for response in responses %}
+    <div class="response-box">
+        <div class="response-header">
+            Response ID: {{ response[0] }} | Review ID: {{ response[1] }} | Seller ID: {{ response[2] }}
+        </div>
+        <p>{{ response[3] }}</p>
+    </div>
+    {% endfor %}
+
+    <form method="POST" action="/responses">
+        <h2>Add a New Response</h2>
+        <label for="review_id">Review ID:</label>
+        <input type="number" name="review_id" required>
+
+        <label for="seller_id">Seller ID:</label>
+        <input type="number" name="seller_id" required>
+
+        <label for="response_text">Response Text:</label>
+        <textarea name="response_text" rows="4" required></textarea>
+
+        <button type="submit">Submit Response</button>
+    </form>
+
+</body>
+</html>

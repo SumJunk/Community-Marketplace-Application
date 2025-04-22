@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Listing Reviews</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f9f9f9;
+            padding: 40px;
+        }
+
+        .review-box {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.05);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+        }
+
+        .response-box {
+            margin-top: 15px;
+            padding-left: 20px;
+            border-left: 2px solid #ddd;
+            font-style: italic;
+            color: #555;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        textarea, input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 12px;
+        }
+
+        button {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Reviews for Listing</h1>
+
+    <!-- Leave a new review -->
+    <form method="POST" action="{{ url_for('reviews.add_review') }}">
+        <h3>Leave a Review</h3>
+        <label>Rating (1–5):</label>
+        <input type="number" name="rating" min="1" max="5" required>
+        <label>Review:</label>
+        <textarea name="review_text" placeholder="Write your review..." required></textarea>
+        <input type="hidden" name="seller_id" value="{{ seller_id }}">
+        <input type="hidden" name="customer_id" value="{{ session['user_id'] }}">
+        <button type="submit">Submit Review</button>
+    </form>
+
+    <hr>
+
+    {% for review in reviews %}
+    <div class="review-box">
+        <div class="review-header">
+            <span>Review #{{ review.id }}</span>
+            <span>Rating: {{ review.rating }}/5</span>
+        </div>
+        <p>{{ review.review_text }}</p>
+
+        <!-- Existing responses -->
+        {% for response in review.responses %}
+            <div class="response-box">
+                Seller Response: {{ response.response_text }}
+            </div>
+        {% endfor %}
+
+        <!-- Respond to a review -->
+        <form method="POST" action="{{ url_for('reviews.add_response', review_id=review.id) }}">
+            <input type="hidden" name="seller_id" value="{{ seller_id }}">
+            <textarea name="response_text" placeholder="Respond to this review..."></textarea>
+            <button type="submit">Submit Response</button>
+        </form>
+    </div>
+    {% endfor %}
+
+</body>
+</html>

@@ -15,6 +15,7 @@ from routes.my_meetings import meeting_bp
 from routes.account import account_bp
 from routes.listing import listings_bp
 from routes.settings import settings_bp
+from routes.reviews import reviews_bp
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -50,7 +51,7 @@ app.register_blueprint(account_bp, url_prefix="/account")
 app.register_blueprint(settings_bp, url_prefix="/settings")
 listings_bp.upload_folder = app.config['UPLOAD_FOLDER']
 app.register_blueprint(dashboards_bp, url_prefix="/dashboard")
-
+app.register_blueprint(reviews_bp, url_prefix="/reviews")
 
 @app.route('/')
 def home():
