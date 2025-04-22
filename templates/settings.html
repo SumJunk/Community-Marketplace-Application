@@ -18,25 +18,55 @@
         }
     
         function openAccountInfo() {
-            document.getElementById("accountInfo").classList.toggle("show");
-        }
-    
-        function openEditor() {
-            document.getElementById("accountInfo").classList.toggle("show");
-            document.getElementById("editAccount").classList.toggle("show");
-        }
-
-        function closeEditor() {
-            document.getElementById("editAccount").classList.toggle("show");
-        }
-    
-        function openOrderHistory() {
-            document.getElementById("orderHistory").classList.toggle("show");
-        }
-    
-        function openDeleteAccount() {
-            document.getElementById("deleteAccount").classList.toggle("show");
-        }
+             if(document.getElementById("orderHistory").classList.toggle("show")) {
+                 document.getElementById("orderHistory").classList.toggle("show");
+             }
+             if(document.getElementById("editAccount").classList.toggle("show")) {
+                 document.getElementById("editAccount").classList.toggle("show");
+             }
+             if(document.getElementById("deleteAccount").classList.toggle("show")) {
+                 document.getElementById("deleteAccount").classList.toggle("show");
+             }
+ 
+             document.getElementById("accountInfo").classList.toggle("show");
+         }
+     
+         function openEditor() {
+             document.getElementById("accountInfo").classList.toggle("show");
+             document.getElementById("editAccount").classList.toggle("show");
+         }
+ 
+         function closeEditor() {
+             document.getElementById("editAccount").classList.toggle("show");
+         }
+     
+         function openOrderHistory() {
+             if(document.getElementById("accountInfo").classList.toggle("show")) {
+                 document.getElementById("accountInfo").classList.toggle("show");
+             }
+             if(document.getElementById("editAccount").classList.toggle("show")) {
+                 document.getElementById("editAccount").classList.toggle("show");
+             }
+             if(document.getElementById("deleteAccount").classList.toggle("show")) {
+                 document.getElementById("deleteAccount").classList.toggle("show");
+             }
+ 
+             document.getElementById("orderHistory").classList.toggle("show");
+         }
+     
+         function openDeleteAccount() {
+             if(document.getElementById("orderHistory").classList.toggle("show")) {
+                 document.getElementById("orderHistory").classList.toggle("show");
+             }
+             if(document.getElementById("editAccount").classList.toggle("show")) {
+                 document.getElementById("editAccount").classList.toggle("show");
+             }
+             if(document.getElementById("accountInfo").classList.toggle("show")) {
+                 document.getElementById("accountInfo").classList.toggle("show");
+             }
+ 
+             document.getElementById("deleteAccount").classList.toggle("show");
+         }
     
         async function submitUpdate(event) {
             event.preventDefault();
@@ -120,30 +150,52 @@
         </div>
 
         <div id="orderHistory" class="open-container">
-            <form method="POST" action="{{ url_for('settings.order_history') }}">
-                {% if prior_meetings %}
-                    <table border="1" style="margin-top: 20px; width: 100%;">
-                        <thead>
+            <h2>Purchase History</h2>
+            {% if purchases %}
+                <table border="1" style="margin-top: 20px; width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Listing ID</th>
+                            <th>Purchase Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for purchase in purchases %}
                             <tr>
-                                <th>Address</th>
-                                <th>Date</th>
-                                <th>Time</th>
+                                <td>{{ purchase.listing_id }}</td>
+                                <td>{{ purchase.purchase_date }}</td>
+                                <td>{{ purchase.status }}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {% for meeting in prior_meetings %}
-                                <tr>
-                                    <td>{{ meeting.address }}</td>
-                                    <td>{{ meeting.date }}</td>
-                                    <td>{{ meeting.time }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <p>No orders.</p>
-                {% endif %}
-            </form>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No purchases.</p>
+            {% endif %}
+            <h2>Meeting History</h2>
+            {% if prior_meetings %}
+                <table border="1" style="margin-top: 20px; width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Address</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for meeting in prior_meetings %}
+                            <tr>
+                                <td>{{ meeting.address }}</td>
+                                <td>{{ meeting.date }}</td>
+                                <td>{{ meeting.time }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No orders.</p>
+            {% endif %}
         </div>
 
         <div id="deleteAccount" class="open-container">

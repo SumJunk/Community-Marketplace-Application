@@ -39,6 +39,7 @@ def search_address():
     if response.status_code == 200:
         results = response.json()
         filtered_results = []
+        seen_addresses = set()
 
         for item in results:
             address = item.get("address", {})
@@ -49,15 +50,25 @@ def search_address():
             street_name = address.get("road") or address.get("pedestrian") or address.get("footway") or ""
 
             full_street = f"{house_number} {street_name}".strip()
+            city = address.get("city") or address.get("town") or address.get("village")
+            state = address.get("state")
+            postcode = address.get("postcode")
+
+            unique_key = f"{full_street}-{city}-{state}-{postcode}"
+
+            if unique_key in seen_addresses:
+                continue
+
+            seen_addresses.add(unique_key)
 
             filtered_results.append({
                 "display_name": item.get("display_name"),
                 "street": full_street,
-                "city": address.get("city") or address.get("town") or address.get("village"),
-                "state": address.get("state"),
-                "postcode": address.get("postcode")
+                "city": city,
+                "state": state,
+                "postcode": postcode
             })
-    
+
         if not filtered_results:
             return jsonify({"error": "Invalid or unknown location. Please try again."}), 404
         
