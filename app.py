@@ -3,6 +3,7 @@ from flask import Flask, render_template, redirect, url_for, request, session, f
 from flask_mysqldb import MySQL
 from flask_mail import Mail
 from routes.listing import listings_bp
+from routes.dashbaords import dashboards_bp
 import os
 import config
 
@@ -52,6 +53,8 @@ app.register_blueprint(account_bp, url_prefix="/account")
 app.register_blueprint(settings_bp, url_prefix="/settings")
 >>>>>>> 2cecb23804793a621895259992577f36b159b3d9
 listings_bp.upload_folder = app.config['UPLOAD_FOLDER']
+app.register_blueprint(dashboards_bp, url_prefix="/dashboard")
+
 
 @app.route('/')
 def home():
