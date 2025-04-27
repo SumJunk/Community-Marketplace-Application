@@ -130,7 +130,7 @@ def delete_meeting(meeting_id):
         print("Error during delete:", e)
         return jsonify({'error': str(e)})
 
-@meeting_bp.route('/<int:meeting_id>', methods=["POST"])
+@meeting_bp.route('/confirm/<int:meeting_id>', methods=["POST"])
 def confirm_meeting(meeting_id):
     user_id = session.get('user_id')
     email = get_user(meeting_id)
@@ -154,7 +154,7 @@ def confirm_meeting(meeting_id):
         cursor.execute("UPDATE meetings SET status = 'confirmed' WHERE id = %s", (meeting_id,))
         flash("Meeting confirmed!", "success")
         if email:
-                send_email(current_app._get_current_object(), email, 'Meeting Cconfirmed', f'Your meeting for listing #{listing_id} has been confirmed')
+                send_email(current_app._get_current_object(), email, 'Meeting Confirmed', f'Your meeting for listing #{listing_id} has been confirmed')
     elif 'cancel' in request.form:
         cursor.execute("DELETE FROM meetings WHERE id = %s", (meeting_id,))
         cursor.execute("DELETE FROM purchases WHERE listing_id = %s", (listing_id,))
@@ -169,7 +169,7 @@ def confirm_meeting(meeting_id):
 
     return redirect(url_for('my_meetings.my_meetings_page'))
 
-@meeting_bp.route('/<int:meeting_id>', methods=["POST"])
+@meeting_bp.route('/confirm_update/<int:meeting_id>', methods=["POST"])
 def confirm_update(meeting_id):
     email = get_user(meeting_id)
 
