@@ -3,7 +3,7 @@ from flask import Flask, render_template, redirect, url_for, request, session, f
 from flask_mysqldb import MySQL
 from flask_mail import Mail
 from routes.listing import listings_bp
-from routes.dashbaords import dashboards_bp
+from routes.dashboards import dashboards_bp
 import os
 import config
 from notifications.extensions import mail

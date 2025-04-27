@@ -1,8 +1,10 @@
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, flash
-from config import mysql
+from flask_mysqldb import MySQL
 from MySQLdb.cursors import DictCursor
 
 reviews_bp = Blueprint('reviews', __name__, template_folder='../templates')
+
+mysql = MySQL()
 
 # -------------------------------
 # HTML Page: View and Submit Reviews

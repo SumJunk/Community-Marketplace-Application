@@ -162,6 +162,7 @@ def purchase_item(listing_id):
 
 
     session['listing_id'] = listing_id
+    session['seller_id'] = seller_id
     cursor.close()
     flash("Purchase initiated. Please enter your address.", "info")
     return redirect(url_for('address.address_page'))
