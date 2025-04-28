@@ -70,22 +70,16 @@ def login():
         user = cursor.fetchone()
 
         if user:
-            if len(user) == 6:
-                user_id, username, stored_password, failed_attempts, lockout_time, email = user
-            elif len(user) == 4:
-                user_id, username, stored_password, email = user
-                failed_attempts = 0
-                lockout_time = None
+            if len(user) == 5:
+                user_id, username_db, stored_password, failed_attempts, lockout_time = user
             else:
                 return "Unexpected user data structure."
-        
+
             if lockout_time and datetime.now() < lockout_time:
-                flash(f'Account locked. Please try again after 5 minutes.')
+                flash(f'Account locked. Please try again after {LOCKOUT_TIME_MINUTES} minutes.')
                 return redirect(url_for('login'))
 
-
             if password == stored_password:
-
                 cursor.execute(
                     "UPDATE users SET failed_attempts = 0, lockout_time = NULL WHERE id = %s",
                     (user_id,)
@@ -93,11 +87,9 @@ def login():
                 mysql.connection.commit()
                 cursor.close()
 
-  
                 session['logged_in'] = True
-                session['user_id'] = user[0]
-                session['username'] = username
-                session['email'] = email
+                session['user_id'] = user_id
+                session['username'] = username_db
                 flash('Login successful!')
                 return redirect(url_for('home'))
             else:
@@ -123,25 +115,21 @@ def login():
 
     return render_template('login.html')
 
-
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
     session.pop('username', None)
-    session.pop('email', None)
+    session.pop('user_id', None)
     flash('You have been logged out.')
     return redirect(url_for('home'))
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        email = request.form['email']
 
         cursor = mysql.connection.cursor()
-
         cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         existing_user = cursor.fetchone()
 
@@ -150,8 +138,8 @@ def register():
             return redirect(url_for('register'))
 
         cursor.execute(
-            "INSERT INTO users (username, password, email, failed_attempts, lockout_time) VALUES (%s, %s, %s, 0, NULL)",
-            (username, password, email)
+            "INSERT INTO users (username, password, failed_attempts, lockout_time) VALUES (%s, %s, 0, NULL)",
+            (username, password)
         )
         mysql.connection.commit()
         cursor.close()
@@ -161,8 +149,5 @@ def register():
 
     return render_template('register.html')
 
-
 if __name__ == '__main__':
     app.run(debug=True, port=5500)
-
-

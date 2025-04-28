@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, request, jsonify, redirect, url_fo
 from flask_mysqldb import MySQL
 from datetime import datetime
 
-# Create a Blueprint for the date-time routes
 settings_bp = Blueprint('settings', __name__, template_folder="../templates")
 
 mysql = MySQL()
@@ -22,7 +21,7 @@ def settings_page():
     user_id = session.get('user_id')
 
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT username, email FROM users WHERE id = %s", (user_id,))
+    cursor.execute("SELECT username FROM users WHERE id = %s", (user_id,))
     result = cursor.fetchone()
     cursor.close()
 
@@ -58,8 +57,8 @@ def settings_page():
     cursor.close()
 
     if result:
-        username, email = result
-        return render_template('settings.html', username=username, email=email, prior_meetings=prior_meetings, purchases=purchases)
+        username = result[0]
+        return render_template('settings.html', username=username, prior_meetings=prior_meetings, purchases=purchases)
     else:
         flash("User not found", "danger")
         return redirect(url_for('login'))
