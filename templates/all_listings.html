@@ -5,15 +5,21 @@
 {% block content %}
 <h2 style="text-align: center; margin-bottom: 30px;">All Listings</h2>
 
-<form method="get" action="{{ url_for('listings.all_listings') }}" style="text-align: center; margin-bottom: 30px;">
-    <select name="category" id="category" style="padding: 8px; margin-right: 10px;">
+<form method="get" action="{{ url_for('listings.all_listings') }}" style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 30px;">
+    <select name="sort" id="sort" style="padding: 8px;">
+        <option value="created_at" {% if selected_sort == 'created_at' %}selected{% endif %}>Newest</option>
+        <option value="price" {% if selected_sort == 'price' %}selected{% endif %}>Price</option>
+        <option value="title" {% if selected_sort == 'title' %}selected{% endif %}>Title</option>
+    </select>
+
+    <select name="category" id="category" style="padding: 8px;">
         <option value="All" {% if selected_category == 'All' %}selected{% endif %}>All</option>
         <option value="Furniture" {% if selected_category == 'Furniture' %}selected{% endif %}>Furniture</option>
         <option value="Electronic" {% if selected_category == 'Electronic' %}selected{% endif %}>Electronic</option>
         <option value="Other" {% if selected_category == 'Other' %}selected{% endif %}>Other</option>
     </select>
 
-    <input type="text" name="search" id="search" value="{{ search }}" placeholder="Search..." style="padding: 8px; width: 200px; margin-right: 10px;">
+    <input type="text" name="search" id="search" value="{{ search }}" placeholder="Search..." style="padding: 8px; width: 200px;">
     <button type="submit" class="styled-button">Filter</button>
 </form>
 

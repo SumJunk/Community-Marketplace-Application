@@ -1,9 +1,6 @@
-<<<<<<< HEAD
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, flash, current_app
-=======
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, flash
 from flask_mysqldb import MySQL
->>>>>>> 8a4cd153657b11826b0de630b7b991de831dce35
 from MySQLdb.cursors import DictCursor
 
 reviews_bp = Blueprint('reviews', __name__, template_folder='../templates')

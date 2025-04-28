@@ -2,7 +2,7 @@
 MYSQL_CONFIG = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'Shriram123*',
+    'password': 'rootroot',
     'database': 'community_marketplace'
 }
 

@@ -105,7 +105,8 @@ def edit_listing(listing_id):
 def all_listings():
     category = request.args.get('category')
     search = request.args.get('search')
-    
+    sort = request.args.get('sort', 'created_at')  # <-- NEW: Grab sort option
+
     query = """
     SELECT 
         l.id, l.title, l.price, l.category, l.description, l.image_url,
@@ -127,12 +128,20 @@ def all_listings():
         query += " AND (l.title LIKE %s OR l.description LIKE %s)"
         params.extend([f"%{search}%", f"%{search}%"])
 
+    if sort == 'price':
+        query += " ORDER BY l.price ASC"
+    elif sort == 'title':
+        query += " ORDER BY l.title ASC"
+    else:
+        query += " ORDER BY l.created_at DESC"  
+
     cursor = mysql.connection.cursor()
     cursor.execute(query, params)
     listings = cursor.fetchall()
     cursor.close()
 
-    return render_template('all_listings.html', listings=listings, selected_category=category or 'All', search=search or '')
+    return render_template('all_listings.html', listings=listings, selected_category=category or 'All', search=search or '', selected_sort=sort)
+
 
 @listings_bp.route('/purchase/<int:listing_id>', methods=['POST'])
 @login_required
@@ -165,11 +174,8 @@ def purchase_item(listing_id):
     cursor.execute("UPDATE accounts SET balance = balance - %s WHERE user_id = %s", (item_price, user_id))
     mysql.connection.commit()
 
-<<<<<<< HEAD
-=======
     session['listing_id'] = listing_id
     session['seller_id'] = seller_id
->>>>>>> 8a4cd153657b11826b0de630b7b991de831dce35
     cursor.close()
 
     flash(f"Purchase of {listing[1]} successful!", "success")
