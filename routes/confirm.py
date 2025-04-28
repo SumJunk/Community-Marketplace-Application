@@ -14,6 +14,7 @@ def confirm_meeting():
     time = session.get('time')
     email = session.get('email')
     listing_id = session.get('listing_id')
+    seller_id = session.get('seller_id')
 
     if request.method == 'POST':
         if 'confirm' in request.form:
@@ -24,8 +25,8 @@ def confirm_meeting():
 
             # Insert into meetings
             cursor.execute(
-                "INSERT INTO meetings (address, date, time) VALUES (%s, %s, %s)",
-                (address, date, time)
+                "INSERT INTO meetings (address, date, time, status, buyer_id, seller_id, listing_id) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                (address, date, time, 'pending', session.get('user_id'), seller_id, listing_id)
             )
 
             # Insert the confirmed purchase

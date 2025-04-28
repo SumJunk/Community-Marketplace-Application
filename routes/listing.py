@@ -165,6 +165,11 @@ def purchase_item(listing_id):
     cursor.execute("UPDATE accounts SET balance = balance - %s WHERE user_id = %s", (item_price, user_id))
     mysql.connection.commit()
 
+<<<<<<< HEAD
+=======
+    session['listing_id'] = listing_id
+    session['seller_id'] = seller_id
+>>>>>>> 8a4cd153657b11826b0de630b7b991de831dce35
     cursor.close()
 
     flash(f"Purchase of {listing[1]} successful!", "success")

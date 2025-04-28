@@ -37,7 +37,7 @@
          }
  
          function closeEditor() {
-             document.getElementById("editAccount").classList.toggle("show");
+             document.getElementById("editAccount").classList.toggle("hidden");
          }
      
          function openOrderHistory() {
@@ -98,6 +98,14 @@
                 console.error("Delete error:", error);
             }
         }
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.transition = "opacity 0.5s ease";
+                alert.style.opacity = 0;
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 4000);
     </script>    
 </head>
 <body>
