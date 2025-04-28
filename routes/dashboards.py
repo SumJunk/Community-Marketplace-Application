@@ -19,10 +19,10 @@ def review_dashboard():
     # ✅ Show all listings with review counts and average ratings
     query = """
         SELECT l.id AS listing_id, l.title,
-               COUNT(r.id) AS review_count,
-               ROUND(AVG(r.rating), 2) AS average_rating
+           COUNT(r.id) AS review_count,
+           ROUND(AVG(r.rating), 2) AS average_rating
         FROM listings l
-        LEFT JOIN reviews r ON r.seller_id = l.seller_id
+        LEFT JOIN reviews r ON r.reviewee_id = l.seller_id
         GROUP BY l.id
     """
     cursor.execute(query)
