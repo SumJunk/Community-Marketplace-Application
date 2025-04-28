@@ -140,32 +140,35 @@ def purchase_item(listing_id):
     user_id = session.get('user_id')
     cursor = mysql.connection.cursor()
 
-    # Get listing and seller ID
-    cursor.execute("SELECT seller_id FROM listings WHERE id = %s", (listing_id,))
+    # Get listing details
+    cursor.execute("SELECT price, seller_id FROM listings WHERE id = %s", (listing_id,))
     listing = cursor.fetchone()
 
     if not listing:
         flash("Listing not found.", "danger")
         return redirect(url_for('listings.all_listings'))
 
-    seller_id = listing[0]
-    if seller_id == user_id:
-        flash("You cannot purchase your own listing.", "warning")
-        return redirect(url_for('listings.all_listings'))
+    item_price = listing[0]
+    seller_id = listing[1]
 
-    # Check if already purchased
-    cursor.execute("SELECT * FROM purchases WHERE listing_id = %s", (listing_id,))
-    if cursor.fetchone():
-        flash("This item has already been purchased.", "info")
-        cursor.close()
-        return redirect(url_for('listings.all_listings'))
+    # Fetch user balance from the database (check if funds are sufficient)
+    cursor.execute("SELECT balance FROM accounts WHERE user_id = %s", (user_id,))
+    balance = cursor.fetchone()
 
+    if not balance or balance[0] < item_price:
+        # Redirect to insufficient funds page if the balance is less than the item price
+        return redirect(url_for('account.insufficient_funds'))
 
-    session['listing_id'] = listing_id
+    # If user has enough funds, proceed with the purchase
+    cursor.execute("INSERT INTO purchases (user_id, listing_id, seller_id) VALUES (%s, %s, %s)",
+                   (user_id, listing_id, seller_id))
+    cursor.execute("UPDATE accounts SET balance = balance - %s WHERE user_id = %s", (item_price, user_id))
+    mysql.connection.commit()
+
     cursor.close()
-    flash("Purchase initiated. Please enter your address.", "info")
-    return redirect(url_for('address.address_page'))
 
+    flash(f"Purchase of {listing[1]} successful!", "success")
+    return redirect(url_for('listings.all_listings'))
 
 @listings_bp.route('/delete/<int:listing_id>', methods=['POST'])
 @login_required
@@ -207,3 +210,32 @@ def delete_listing(listing_id):
 
     flash('Listing deleted successfully!', 'success')
     return redirect(url_for('listings.my_listings'))
+
+# ------------------------
+# New Route: Listing Detail Page
+# ------------------------
+@listings_bp.route('/listing/<int:listing_id>', methods=['GET'])
+def listing_detail(listing_id):
+    cursor = mysql.connection.cursor()
+
+    # Fetch listing details
+    cursor.execute("SELECT * FROM listings WHERE id = %s", (listing_id,))
+    listing = cursor.fetchone()
+
+    if not listing:
+        flash("Listing not found.", "danger")
+        cursor.close()
+        return redirect(url_for('listings.all_listings'))
+
+    # Fetch reviews for this seller
+    cursor.execute("""
+        SELECT rating, review_text, created_at
+        FROM reviews
+        WHERE seller_id = %s
+        ORDER BY created_at DESC
+    """, (listing[1],))  # listing[1] = seller_id
+    reviews = cursor.fetchall()
+
+    cursor.close()
+
+    return render_template('listing_detail.html', listing=listing, reviews=reviews, seller_id=listing[1])

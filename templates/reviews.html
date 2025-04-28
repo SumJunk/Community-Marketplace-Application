@@ -67,35 +67,38 @@
         <label>Review:</label>
         <textarea name="review_text" placeholder="Write your review..." required></textarea>
         <input type="hidden" name="seller_id" value="{{ seller_id }}">
-        <input type="hidden" name="customer_id" value="{{ session['user_id'] }}">
         <button type="submit">Submit Review</button>
     </form>
 
     <hr>
 
-    {% for review in reviews %}
-    <div class="review-box">
-        <div class="review-header">
-            <span>Review #{{ review.id }}</span>
-            <span>Rating: {{ review.rating }}/5</span>
-        </div>
-        <p>{{ review.review_text }}</p>
-
-        <!-- Existing responses -->
-        {% for response in review.responses %}
-            <div class="response-box">
-                Seller Response: {{ response.response_text }}
+    {% if reviews %}
+        {% for review in reviews %}
+        <div class="review-box">
+            <div class="review-header">
+                <span>Review #{{ review.id }}</span>
+                <span>Rating: {{ review.rating }}/5</span>
             </div>
-        {% endfor %}
+            <p>{{ review.review_text }}</p>
 
-        <!-- Respond to a review -->
-        <form method="POST" action="{{ url_for('reviews.add_response', review_id=review.id) }}">
-            <input type="hidden" name="seller_id" value="{{ seller_id }}">
-            <textarea name="response_text" placeholder="Respond to this review..."></textarea>
-            <button type="submit">Submit Response</button>
-        </form>
-    </div>
-    {% endfor %}
+            <!-- Existing responses -->
+            {% for response in review.responses %}
+                <div class="response-box">
+                    Seller Response: {{ response.response_text }}
+                </div>
+            {% endfor %}
+
+            <!-- Respond to a review -->
+            <form method="POST" action="{{ url_for('reviews.add_response', review_id=review.id) }}">
+                <input type="hidden" name="seller_id" value="{{ seller_id }}">
+                <textarea name="response_text" placeholder="Respond to this review..."></textarea>
+                <button type="submit">Submit Response</button>
+            </form>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No reviews yet for this listing.</p>
+    {% endif %}
 
 </body>
 </html>

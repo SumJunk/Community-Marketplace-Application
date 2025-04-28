@@ -1,5 +1,4 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, flash
-from config import mysql
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, flash, current_app
 from MySQLdb.cursors import DictCursor
 
 reviews_bp = Blueprint('reviews', __name__, template_folder='../templates')
@@ -9,7 +8,7 @@ reviews_bp = Blueprint('reviews', __name__, template_folder='../templates')
 # -------------------------------
 @reviews_bp.route('/listing/<int:seller_id>', methods=['GET', 'POST'])
 def listing_reviews(seller_id):
-    cursor = mysql.connection.cursor(DictCursor)
+    cursor = current_app.extensions['mysql'].connection.cursor(DictCursor)
 
     # Handle new review submission
     if request.method == 'POST':
@@ -21,7 +20,7 @@ def listing_reviews(seller_id):
             "INSERT INTO reviews (seller_id, customer_id, rating, review_text) VALUES (%s, %s, %s, %s)",
             (seller_id, customer_id, rating, review_text)
         )
-        mysql.connection.commit()
+        current_app.extensions['mysql'].connection.commit()
         flash('Review submitted successfully!')
         return redirect(url_for('reviews.listing_reviews', seller_id=seller_id))
 
@@ -50,12 +49,12 @@ def add_response(review_id):
         seller_id = data.get('seller_id')
         response_text = data.get('response_text')
 
-        cursor = mysql.connection.cursor()
+        cursor = current_app.extensions['mysql'].connection.cursor()
         cursor.execute(
             "INSERT INTO responses (review_id, seller_id, response_text, created_at, updated_at) VALUES (%s, %s, %s, NOW(), NOW())",
             (review_id, seller_id, response_text)
         )
-        mysql.connection.commit()
+        current_app.extensions['mysql'].connection.commit()
         cursor.close()
 
         flash('Response submitted successfully!')
@@ -69,7 +68,7 @@ def add_response(review_id):
 @reviews_bp.route('/api', methods=['GET'])
 def get_reviews_json():
     try:
-        cursor = mysql.connection.cursor()
+        cursor = current_app.extensions['mysql'].connection.cursor()
         cursor.execute("SELECT id, seller_id, customer_id, rating, review_text FROM reviews")
         reviews = cursor.fetchall()
         cursor.close()
@@ -94,14 +93,36 @@ def add_review_json():
         rating = data.get('rating')
         review_text = data.get('review_text')
 
-        cursor = mysql.connection.cursor()
+        cursor = current_app.extensions['mysql'].connection.cursor()
         cursor.execute(
             "INSERT INTO reviews (seller_id, customer_id, rating, review_text) VALUES (%s, %s, %s, %s)",
             (seller_id, customer_id, rating, review_text)
         )
-        mysql.connection.commit()
+        current_app.extensions['mysql'].connection.commit()
         cursor.close()
 
         return jsonify({'message': 'Review added successfully!'})
     except Exception as e:
         return jsonify({'error': str(e)})
+
+@reviews_bp.route('/add', methods=['POST'])
+def add_review():
+    try:
+        rating = request.form['rating']
+        review_text = request.form['review_text']
+        seller_id = request.form['seller_id']
+        customer_id = session.get('user_id')
+
+        cursor = current_app.extensions['mysql'].connection.cursor()
+        cursor.execute(
+            "INSERT INTO reviews (seller_id, customer_id, rating, review_text) VALUES (%s, %s, %s, %s)",
+            (seller_id, customer_id, rating, review_text)
+        )
+        current_app.extensions['mysql'].connection.commit()
+        cursor.close()
+
+        flash('Review submitted successfully!')
+        return redirect(url_for('reviews.listing_reviews', seller_id=seller_id))
+
+    except Exception as e:
+        return f"Error: {str(e)}"

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>My Account</title>
+</head>
+<body style="text-align: center; padding: 40px;">
+
+    <h1>My Account Balance</h1>
+
+    <h2>Available Funds: ${{ funds }}</h2>
+
+    <form method="POST" action="{{ url_for('account.add_funds') }}">
+        <input type="number" name="amount" step="0.01" placeholder="Enter amount to add" required>
+        <button type="submit">Add Funds</button>
+    </form>
+
+    <br>
+    <a href="{{ url_for('listings.all_listings') }}">Back to Listings</a>
+
+</body>
+</html>

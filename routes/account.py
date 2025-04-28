@@ -1,43 +1,50 @@
-from flask import Blueprint, request, jsonify
-from flask_mysqldb import MySQL
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, session, flash, current_app
+from MySQLdb.cursors import DictCursor
 
-account_bp = Blueprint('account', __name__)
+account_bp = Blueprint('account', __name__, template_folder="../templates")
 
-# Check funds for a purchase
-@account_bp.route('/check_funds/<int:user_id>/<float:item_price>', methods=['GET'])
-def check_funds(user_id, item_price):
-    try:
-        cursor = mysql.connection.cursor()
-        cursor.execute("SELECT balance FROM accounts WHERE user_id = %s", (user_id,))
-        balance = cursor.fetchone()
-        if balance is None:
-            return jsonify({'error': 'Account not found'}), 404
+# View account balance page
+@account_bp.route('/my-account', methods=['GET'])
+def my_account_page():
+    user_id = session.get('user_id')
+    if not user_id:
+        flash('You need to login first.', 'warning')
+        return redirect(url_for('login'))
 
-        balance = balance[0]
-        if balance >= item_price:
-            return jsonify({'can_purchase': True, 'message': 'Funds are sufficient for the purchase.'})
-        else:
-            return jsonify({'can_purchase': False, 'message': 'Insufficient funds. Please add money to your account.'})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    finally:
-        cursor.close()
+    cursor = current_app.extensions['mysql'].connection.cursor(DictCursor)
+    cursor.execute("SELECT balance FROM accounts WHERE user_id = %s", (user_id,))
+    user = cursor.fetchone()
+    cursor.close()
 
-# Add funds to the account
-@account_bp.route('/add_funds/<int:user_id>', methods=['POST'])
-def add_funds(user_id):
-    try:
-        data = request.get_json()
-        amount = data.get('amount')
-        if amount <= 0:
-            return jsonify({'error': 'Invalid amount. Please enter a positive number.'}), 400
+    if not user:
+        flash('Account not found.', 'danger')
+        return redirect(url_for('home'))
 
-        cursor = mysql.connection.cursor()
-        cursor.execute("UPDATE accounts SET balance = balance + %s WHERE user_id = %s", (amount, user_id))
-        mysql.connection.commit()
-        cursor.close()
+    return render_template('my_account.html', balance=user['balance'])
 
-        return jsonify({'message': 'Funds added successfully!'})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+# Add funds (using a form)
+@account_bp.route('/my-account/add', methods=['POST'])
+def add_funds():
+    user_id = session.get('user_id')
+    if not user_id:
+        flash('You need to login first.', 'warning')
+        return redirect(url_for('login'))
 
+    amount = float(request.form['amount'])
+
+    if amount <= 0:
+        flash('Amount must be positive.', 'danger')
+        return redirect(url_for('account.my_account_page'))
+
+    cursor = current_app.extensions['mysql'].connection.cursor()
+    cursor.execute("UPDATE accounts SET balance = balance + %s WHERE user_id = %s", (amount, user_id))
+    current_app.extensions['mysql'].connection.commit()
+    cursor.close()
+
+    flash(f'${amount:.2f} added to your account.', 'success')
+    return redirect(url_for('account.my_account_page'))
+
+# Insufficient funds page
+@account_bp.route('/insufficient-funds')
+def insufficient_funds():
+    return render_template('insufficient_funds.html')

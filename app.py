@@ -3,7 +3,7 @@ from flask import Flask, render_template, redirect, url_for, request, session, f
 from flask_mysqldb import MySQL
 from flask_mail import Mail
 from routes.listing import listings_bp
-from routes.dashbaords import dashboards_bp
+from routes.dashboards import dashboards_bp
 import os
 import config
 from notifications.extensions import mail
@@ -17,6 +17,7 @@ from routes.listing import listings_bp
 from routes.settings import settings_bp
 from routes.reviews import reviews_bp
 
+
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
@@ -29,6 +30,7 @@ app.config['MYSQL_PASSWORD'] = config.MYSQL_CONFIG['password']
 app.config['MYSQL_DB'] = config.MYSQL_CONFIG['database']
 
 mysql = MySQL(app)
+app.extensions['mysql'] = mysql
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
@@ -53,39 +55,104 @@ listings_bp.upload_folder = app.config['UPLOAD_FOLDER']
 app.register_blueprint(dashboards_bp, url_prefix="/dashboard")
 app.register_blueprint(reviews_bp, url_prefix="/reviews")
 
+
 @app.route('/')
 def home():
     return render_template('index.html')
+
+# @app.route('/login', methods=['GET', 'POST'])
+# def login():
+#     if request.method == 'POST':
+#         username = request.form['username']
+#         password = request.form['password']
+        
+#         cursor = mysql.connection.cursor()
+#         cursor.execute(
+#             "SELECT * FROM users WHERE username = %s AND password = %s", (username, password)
+#         )
+#         user = cursor.fetchone()
+
+#         if user:
+#             if len(user) == 6:
+#                 user_id, username, stored_password, failed_attempts, lockout_time, email = user
+#             elif len(user) == 4:
+#                 user_id, username, stored_password, email = user
+#                 failed_attempts = 0
+#                 lockout_time = None
+#             else:
+#                 return "Unexpected user data structure."
+        
+#             if lockout_time and datetime.now() < lockout_time:
+#                 flash(f'Account locked. Please try again after 5 minutes.')
+#                 return redirect(url_for('login'))
+
+
+#             if password == stored_password:
+
+    #             cursor.execute(
+    #                 "UPDATE users SET failed_attempts = 0, lockout_time = NULL WHERE id = %s",
+    #                 (user_id,)
+    #             )
+    #             mysql.connection.commit()
+    #             cursor.close()
+
+  
+    #             session['logged_in'] = True
+    #             session['user_id'] = user[0]
+    #             session['username'] = username
+    #             session['email'] = email
+    #             flash('Login successful!')
+    #             return redirect(url_for('home'))
+    #         else:
+    #             failed_attempts += 1
+    #             if failed_attempts >= MAX_ATTEMPTS:
+    #                 lockout_time = datetime.now() + timedelta(minutes=LOCKOUT_TIME_MINUTES)
+    #                 cursor.execute(
+    #                     "UPDATE users SET failed_attempts = %s, lockout_time = %s WHERE id = %s",
+    #                     (failed_attempts, lockout_time, user_id)
+    #                 )
+    #                 flash(f'Too many failed attempts. Your account is locked for {LOCKOUT_TIME_MINUTES} minutes.')
+    #             else:
+    #                 cursor.execute(
+    #                     "UPDATE users SET failed_attempts = %s WHERE id = %s",
+    #                     (failed_attempts, user_id)
+    #                 )
+    #                 flash('Invalid username or password.')
+
+    #             mysql.connection.commit()
+    #             cursor.close()
+    #     else:
+    #         flash('Invalid username or password.')
+
+    # return render_template('login.
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        
+
         cursor = mysql.connection.cursor()
         cursor.execute(
-            "SELECT * FROM users WHERE username = %s AND password = %s", (username, password)
+            "SELECT id, username, password, failed_attempts, lockout_time, email FROM users WHERE username = %s", 
+            (username,)
         )
         user = cursor.fetchone()
+        cursor.close()
 
         if user:
-            if len(user) == 6:
-                user_id, username, stored_password, failed_attempts, lockout_time, email = user
-            elif len(user) == 4:
-                user_id, username, stored_password, email = user
-                failed_attempts = 0
-                lockout_time = None
-            else:
-                return "Unexpected user data structure."
-        
-            if lockout_time and datetime.now() < lockout_time:
-                flash(f'Account locked. Please try again after 5 minutes.')
-                return redirect(url_for('login'))
+            user_id, db_username, db_password, failed_attempts, lockout_time, email = user
 
+            # 🚨 Handle lockout_time properly
+            if lockout_time:
+                if isinstance(lockout_time, str):
+                    lockout_time = datetime.strptime(lockout_time, "%Y-%m-%d %H:%M:%S")
+                if datetime.now() < lockout_time:
+                    flash(f'Account locked. Please try again after 5 minutes.')
+                    return redirect(url_for('login'))
 
-            if password == stored_password:
-
+            if password == db_password:
+                cursor = mysql.connection.cursor()
                 cursor.execute(
                     "UPDATE users SET failed_attempts = 0, lockout_time = NULL WHERE id = %s",
                     (user_id,)
@@ -93,15 +160,15 @@ def login():
                 mysql.connection.commit()
                 cursor.close()
 
-  
                 session['logged_in'] = True
-                session['user_id'] = user[0]
-                session['username'] = username
+                session['user_id'] = user_id
+                session['username'] = db_username
                 session['email'] = email
                 flash('Login successful!')
                 return redirect(url_for('home'))
             else:
                 failed_attempts += 1
+                cursor = mysql.connection.cursor()
                 if failed_attempts >= MAX_ATTEMPTS:
                     lockout_time = datetime.now() + timedelta(minutes=LOCKOUT_TIME_MINUTES)
                     cursor.execute(
@@ -115,13 +182,14 @@ def login():
                         (failed_attempts, user_id)
                     )
                     flash('Invalid username or password.')
-
                 mysql.connection.commit()
                 cursor.close()
         else:
             flash('Invalid username or password.')
 
     return render_template('login.html')
+
+
 
 
 @app.route('/logout')

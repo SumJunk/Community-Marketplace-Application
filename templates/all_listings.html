@@ -20,8 +20,12 @@
 <div style="display: flex; flex-direction: column; gap: 30px; align-items: center;">
     {% for listing in listings %}
         <div style="display: flex; justify-content: space-between; align-items: center; width: 80%; padding: 20px; border-radius: 10px; background-color: #ffffff; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+            
+            <!-- Left: Info -->
             <div style="flex: 2;">
-                <h3>{{ listing[1] }}</h3>
+                <a href="{{ url_for('listings.listing_detail', listing_id=listing[0]) }}" style="text-decoration: none; color: black;">
+                    <h3>{{ listing[1] }}</h3>
+                </a>
                 <p><strong>Price:</strong> ${{ listing[2] }}</p>
                 <p><strong>Category:</strong> {{ listing[3] }}</p>
                 <p><strong>Description:</strong> {{ listing[4] }}</p>
@@ -33,6 +37,7 @@
                 {% endif %}
             </div>
 
+            <!-- Center: Image -->
             <div style="flex: 1; text-align: center;">
                 {% if listing[5] %}
                     <img src="{{ url_for('static', filename=listing[5] | replace('\\', '/') ) }}" alt="Image" style="max-width: 150px; border-radius: 8px;"><br><br>

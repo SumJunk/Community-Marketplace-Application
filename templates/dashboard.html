@@ -25,7 +25,13 @@
             <tr>
                 <td>{{ row.title }}</td>
                 <td>{{ row.review_count }}</td>
-                <td>{{ row.average_rating }}</td>
+                <td>
+                    {% if row.review_count == 0 %}
+                        <span style="color: gray;">N/A</span>
+                    {% else %}
+                        {{ row.average_rating }}
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>

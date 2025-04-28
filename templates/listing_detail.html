@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ listing[2] }} - Community Marketplace</title> <!-- listing[2] = title -->
+    <style>
+        body { font-family: Arial, sans-serif; padding: 40px; background-color: #f5f5f5; }
+        .container { background: white; padding: 30px; border-radius: 10px; max-width: 800px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .listing-title { font-size: 28px; margin-bottom: 10px; }
+        .listing-price { font-size: 22px; color: green; margin-bottom: 20px; }
+        .listing-desc { font-size: 16px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="listing-title">{{ listing[2] }}</h1> <!-- title -->
+    <p class="listing-price">${{ listing[3] }}</p> <!-- price -->
+    <p class="listing-desc">{{ listing[5] }}</p> <!-- description -->
+
+    {% if listing[6] %}
+    <img src="/static/{{ listing[6] }}" alt="Product Image" style="max-width:100%; margin-top: 20px;">
+    {% endif %}
+
+    <!-- Review Form -->
+    <div style="margin-top: 40px;">
+        <h2>Leave a Review</h2>
+
+        {% if session.get('logged_in') %}
+        <form action="{{ url_for('reviews.listing_reviews', seller_id=seller_id) }}" method="POST">
+            <label for="rating">Rating:</label><br>
+            <select name="rating" required style="width: 100%; margin-bottom: 10px;">
+                <option value="">Select a rating</option>
+                <option value="5">★★★★★ (5 - Excellent)</option>
+                <option value="4">★★★★☆ (4 - Good)</option>
+                <option value="3">★★★☆☆ (3 - Average)</option>
+                <option value="2">★★☆☆☆ (2 - Poor)</option>
+                <option value="1">★☆☆☆☆ (1 - Terrible)</option>
+            </select>
+
+            <br>
+
+            <label for="review_text">Review:</label><br>
+            <textarea name="review_text" rows="4" required style="width: 100%; margin-bottom: 20px;"></textarea>
+
+            <button type="submit" style="background-color: #f4b400; color: white; padding: 10px 20px; border: none; border-radius: 5px;">Submit Review</button>
+        </form>
+        {% else %}
+            <p>Please <a href="{{ url_for('login') }}">login</a> to leave a review.</p>
+        {% endif %}
+    </div>
+
+    <!-- Show Submitted Reviews -->
+    <hr style="margin: 40px 0;">
+
+    <h2>Customer Reviews</h2>
+
+    {% if reviews %}
+        {% for review in reviews %}
+            <div style="background: #fafafa; margin-bottom: 20px; padding: 20px; border-radius: 8px;">
+                <div style="font-size: 20px; color: #f4b400;">
+                    {% if review.rating is defined and review.rating is not none %}
+                        {% for _ in range(review.rating | int) %}
+                            ★
+                        {% endfor %}
+                        {% for _ in range(5 - review.rating | int) %}
+                            ☆
+                        {% endfor %}
+                    {% else %}
+                        No rating given.
+                    {% endif %}
+                </div>
+                <p>{{ review.review_text }}</p>
+                {% if review.created_at %}
+                    <small style="color: gray;">Posted on {{ review.created_at.strftime('%B %d, %Y') }}</small>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No reviews yet. Be the first to review!</p>
+    {% endif %}
+
+</div>
+
+</body>
+</html>

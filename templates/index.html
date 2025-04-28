@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Community Marketplace</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link rel="icon" href="{{ url_for('static', filename='images/logo_black.png') }}" type="image/png">
 </head>
 <body style="background-image: url('/static/images/market_image.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; height: 100vh; backdrop-filter: blur(5px);">
 
@@ -25,6 +26,8 @@
                 <a href="{{ url_for('address.address_page') }}" class="slide-card">Schedule Meeting<br><span class="icon">📅</span></a>
                 <a href="{{ url_for('my_meetings.my_meetings_page') }}" class="slide-card">Meetings<br><span class="icon">🤝</span></a>
                 <a href="{{ url_for('settings.settings_page') }}" class="slide-card">Settings<br><span class="icon">⚙️</span></a>
+                <a href="{{ url_for('account.my_account_page') }}" class="slide-card">My Account<br><span class="icon">💰</span></a> <!-- Added "My Account" Link -->
+                <a href="{{ url_for('dashboards.review_dashboard') }}" class="slide-card">Review Dashboard<br><span class="icon">📊</span></a> <!-- Added Review Dashboard Link -->
                 <a href="{{ url_for('logout') }}" class="slide-card logout">Logout<br><span class="icon">🚪</span></a>
             </div>
 

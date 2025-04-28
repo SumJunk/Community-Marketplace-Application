@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}My Account{% endblock %}
+
+{% block content %}
+<h2 style="text-align: center;">My Account</h2>
+
+<!-- View Balance Section -->
+<div style="text-align: center; margin-bottom: 30px;">
+    <h3>Your Balance: ${{ balance }}</h3>
+</div>
+
+<!-- Add Funds Form -->
+<div style="text-align: center;">
+    <form method="POST" action="{{ url_for('account.add_funds') }}">
+        <label for="amount">Amount to Add:</label>
+        <input type="number" name="amount" id="amount" required min="1" style="padding: 8px; width: 200px; margin-right: 10px;">
+        <button type="submit" class="styled-button">Add Funds</button>
+    </form>
+</div>
+
+{% endblock %}

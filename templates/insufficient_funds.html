@@ -6,35 +6,32 @@
     <title>Insufficient Funds - Community Marketplace</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-<body>
+<body style="background-color: #f5f5f5; text-align: center; padding-top: 100px;">
+
     <!-- Header -->
     <header>
-        <img src="{{ url_for('static', filename='images/logo_white.png') }}" alt="Community Marketplace Logo" class="header-logo">
-        Community Marketplace - Buy, Sell, Trade
+        <img src="{{ url_for('static', filename='images/logo_white.png') }}" alt="Community Marketplace Logo" style="width: 120px; margin-bottom: 20px;">
+        <h1>Community Marketplace</h1>
     </header>
 
-    <!-- Insufficient Funds Modal -->
-    <div id="insufficientFundsModal" class="modal" style="display: block;"> <!-- Directly display the modal -->
-        <div class="modal-content">
-            <span class="close-button" onclick="closeModal()">&times;</span>
-            <h2>Insufficient Funds</h2>
-            <p>You do not have enough funds in your account to complete this transaction.</p>
-            <button onclick="location.href='/add-funds'">Add Funds</button>
+    <!-- Insufficient Funds Message -->
+    <div style="background: white; padding: 40px; margin: 50px auto; width: 90%; max-width: 500px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+        <h2 style="color: crimson;">Insufficient Funds</h2>
+        <p style="margin-top: 20px;">You don't have enough funds to complete this purchase.</p>
+        <p>Please add money to your account and try again.</p>
+
+        <div style="margin-top: 30px;">
+            <a href="{{ url_for('account.add_funds') }}">
+                <button style="background-color: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 6px; font-size: 16px; cursor: pointer;">
+                    Add Funds
+                </button>
+            </a>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <a href="{{ url_for('listings.all_listings') }}" style="color: #555;">← Go back to Listings</a>
         </div>
     </div>
 
-    <script>
-        function closeModal() {
-            document.getElementById('insufficientFundsModal').style.display = 'none';
-        }
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            var modal = document.getElementById('insufficientFundsModal');
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-    </script>
 </body>
 </html>
