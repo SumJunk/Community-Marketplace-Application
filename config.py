@@ -3,4 +3,10 @@ MYSQL_CONFIG = {
     'user': 'root',
     'password': 'rootroot',
     'database': 'community_marketplace'
+<<<<<<< Updated upstream
 }
+=======
+}
+
+#>>>>>>> 2cecb23804793a621895259992577f36b159b3d9
+>>>>>>> Stashed changes
